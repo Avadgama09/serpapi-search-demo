@@ -1,3 +1,14 @@
+const express = require("express");
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const cors = require("cors");
+require("dotenv").config();
+
+const app = express();
+app.use(cors());
+
+const PORT = 3001;
+const SERPAPI_KEY = process.env.SERPAPI_KEY || "YOUR_SERPAPI_KEY";
+
 app.get("/api/search", async (req, res) => {
   // Use `engine` if provided, default to "google"
   const engine = req.query.engine || "google";
@@ -30,3 +41,6 @@ app.get("/api/search", async (req, res) => {
     res.status(500).json({ error: e.toString() });
   }
 });
+
+// *** THIS IS THE ESSENTIAL FINAL LINE TO START YOUR SERVER! ***
+app.listen(PORT, () => console.log(`Proxy server running on http://localhost:${PORT}`));
