@@ -1,4 +1,8 @@
+// ResearchPanel.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./index.css";
+import TopPanel from "./components/TopPanel.jsx";
 
 const ENGINES = [
   { label: "Google Search", value: "google" },
@@ -6,13 +10,14 @@ const ENGINES = [
   { label: "Bing Search", value: "bing" },
 ];
 
-function ResearchPanel() {
+export default function ResearchPanel() {
   const [query, setQuery] = useState("");
   const [engine, setEngine] = useState("google");
   const [results, setResults] = useState([]);
   const [aiOverview, setAiOverview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -30,9 +35,7 @@ function ResearchPanel() {
 
     try {
       const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error("API error: " + response.status);
-      }
+      if (!response.ok) throw new Error("API error: " + response.status);
       const data = await response.json();
 
       if (engine === "google_ai_overview" && data.ai_overview) {
@@ -50,134 +53,125 @@ function ResearchPanel() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #f0f6ff 0%, #e8eaf6 100%)",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "flex-start"
-    }}>
-      <div style={{
-        marginTop: 80,
-        background: "#fff",
-        boxShadow: "0 8px 32px 0 rgba(31,38,135,.20)",
-        borderRadius: 18,
-        padding: "32px 32px 24px 32px",
-        width: "100%",
-        maxWidth: 520,
-        textAlign: "center"
-      }}>
-        <h2 style={{
-          fontWeight: 700, color: "#304ffe", marginBottom: 24,
-          letterSpacing: ".03em"
-        }}>
-          🔎 Multi-Engine Search with SerpAPI
-        </h2>
-        <form onSubmit={handleSearch} style={{ display: "flex", marginBottom: 10 }}>
+    <div className="page-dark" style={{ gap: 16 }}>
+      {/* Top bar consistent with site */}
+      <header className="nav">
+        <div
+          className="nav__brand"
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate("/")}
+        >
+          <div className="nav__badge">SEO</div>
+          <strong>Research Panel</strong>
+        </div>
+        <div className="nav__links" />
+        <div className="nav__cta" style={{ gap: 8 }}>
+          <button className="btn btn--chip" onClick={() => navigate("/")}>
+            Back to Home
+          </button>
+        </div>
+      </header>
+
+      {/* Query hero - now using TopPanel */}
+      <TopPanel
+        title="Launch Research Panel"
+        subtitle="Search across multiple engines, synthesize answers with AI, and capture insights."
+        error={error}
+      >
+        <form onSubmit={handleSearch} style={{ display: "flex", gap: 10, marginTop: 16 }}>
           <select
             value={engine}
-            onChange={e => setEngine(e.target.value)}
-            style={{
-              marginRight: 10,
-              padding: 9,
-              fontSize: 17,
-              borderRadius: 8,
-              border: "1px solid #b0bec5"
-            }}>
-            {ENGINES.map(opt => (
+            onChange={(e) => setEngine(e.target.value)}
+            className="input-dark"
+            style={{ maxWidth: 230 }}
+          >
+            {ENGINES.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
           <input
-            type="text"
+            className="input-dark"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Type your search and press Enter"
-            style={{
-              flex: 1,
-              padding: 12,
-              fontSize: 17,
-              borderRadius: 8,
-              border: "1px solid #b0bec5"
-            }}
           />
-          <button
-            type="submit"
-            style={{
-              marginLeft: 12,
-              padding: "12px 20px",
-              fontSize: 17,
-              borderRadius: 8,
-              background: "#304ffe",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer"
-            }}>
+          <button type="submit" className="btn btn--primary-lg" style={{ whiteSpace: "nowrap" }}>
             {loading ? "Searching..." : "Search"}
           </button>
         </form>
-        {error && <div style={{ color: "#d32f2f", marginTop: 8 }}>{error}</div>}
-      </div>
-      <div style={{ width: "100%", maxWidth: 520, marginTop: 24 }}>
-        {/* Show Google AI Overview results if available */}
-        {aiOverview && (
-          <div style={{
-            background: "#f9fbe7",
-            borderRadius: 16,
-            boxShadow: "0 2px 16px 0 rgba(31,38,135,.07)",
-            padding: 24,
-            marginBottom: 20
-          }}>
-            <h3 style={{ color: "#43a047", margin: 0, fontWeight: 700 }}>AI Overview</h3>
-            {aiOverview.text_blocks && aiOverview.text_blocks.map((block, i) => (
-              <div key={i} style={{ margin: "18px 0", color: "#333", fontSize: 16 }}>
-                {block.title && <div style={{ fontWeight: 600 }}>{block.title}</div>}
-                {block.snippet && <div>{block.snippet}</div>}
-                {block.list && Array.isArray(block.list) && (
-                  <ul>
-                    {block.list.map((item, j) => (
-                      <li key={j}>{item.snippet}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
+      </TopPanel>
+
+      {/* Three-column workspace */}
+      <section className="research-layout">
+        {/* Sources */}
+        <div className="card-dark">
+          <div className="card-head">
+            <div className="card-title">Sources</div>
+            <div className="chip">Engines</div>
           </div>
-        )}
-        {/* Show regular results (Google Search) */}
-        {results.length > 0 && (
-          <div style={{
-            background: "#fff",
-            borderRadius: 16,
-            boxShadow: "0 2px 16px 0 rgba(31,38,135,.07)",
-            padding: 20
-          }}>
-            <h3 style={{ color: "#222", margin: "0 0 18px 0" }}>Top Results:</h3>
-            <ul style={{ padding: 0, listStyle: "none", margin: 0 }}>
-              {results.map((r, i) => (
-                <li key={i} style={{
-                  marginBottom: 18,
-                  borderBottom: i !== results.length - 1 ? "1px solid #e3e3e3" : "none",
-                  paddingBottom: 10
-                }}>
-                  <a
-                    href={r.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: "none", color: "#1976d2", fontWeight: 600, fontSize: 17 }}>
-                    {r.title}
-                  </a>
-                  <br />
-                  <span style={{ color: "#555", fontSize: 15 }}>{r.snippet}</span>
-                </li>
+          <div className="chip-row">
+            <span className={`chip ${engine === "google" ? "chip--on" : ""}`} onClick={() => setEngine("google")}>Google</span>
+            <span className={`chip ${engine === "bing" ? "chip--on" : ""}`} onClick={() => setEngine("bing")}>Bing</span>
+            <span className={`chip ${engine === "google_ai_overview" ? "chip--on" : ""}`} onClick={() => setEngine("google_ai_overview")}>AI Overview</span>
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="card-dark">
+          <div className="card-head">
+            <div className="card-title">Results</div>
+            <div className="chip">{loading ? "Loading…" : "Live"}</div>
+          </div>
+
+          {/* AI Overview */}
+          {aiOverview && (
+            <div className="card-dark" style={{ background: "#0f1a16", borderColor: "#20463d" }}>
+              <div className="card-title">AI Overview</div>
+              {aiOverview.text_blocks && aiOverview.text_blocks.map((block, i) => (
+                <div key={i} style={{ margin: "12px 0" }}>
+                  {block.title && <div style={{ fontWeight: 700 }}>{block.title}</div>}
+                  {block.snippet && <div className="muted">{block.snippet}</div>}
+                  {block.list && Array.isArray(block.list) && (
+                    <ul style={{ marginTop: 6 }}>
+                      {block.list.map((item, j) => (
+                        <li key={j} className="muted">{item.snippet}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
+          )}
+
+          {/* Organic results */}
+          {results.length > 0 && (
+            <div className="results">
+              {results.map((r, i) => (
+                <div className="result" key={i}>
+                  <div className="result__title">
+                    <a href={r.link} target="_blank" rel="noreferrer">{r.title}</a>
+                  </div>
+                  <div className="result__meta">{r.source || r.domain || 'source'} • {r.date || ''}</div>
+                  <div className="result__snippet">{r.snippet}</div>
+                  {i < results.length - 1 && <div style={{ borderTop: "1px solid var(--line)", margin: "10px 0" }} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Synthesis */}
+        <div className="card-dark">
+          <div className="card-head">
+            <div className="card-title">AI Synthesis</div>
+            <div className="chip">Draft</div>
           </div>
-        )}
-      </div>
+          <div className="synthesis">
+            <p className="muted">Your synthesized insights will appear here after searching.</p>
+            <button className="btn btn--ghost-lg">Save Insight</button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
-
-export default ResearchPanel;

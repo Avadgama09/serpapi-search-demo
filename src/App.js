@@ -1,19 +1,20 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./Homepage";
-import ResearchPanel from "./ResearchPanel";
-import BriefGenerator from "./BriefGenerator"; // <--- Add this here
+// App.js
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Homepage from './Homepage';
+import ResearchPanel from './ResearchPanel';
+import BriefGenerator from './BriefGenerator';        // existing file
+import CompetitorPage from './CompetitorPage';        // new file we’ll add
 
-function App() {
+export default function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Homepage />} />
         <Route path="/research" element={<ResearchPanel />} />
         <Route path="/brief" element={<BriefGenerator />} />
+        <Route path="/competitors" element={<CompetitorPage />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
-
-export default App;
